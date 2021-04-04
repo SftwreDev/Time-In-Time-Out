@@ -29,9 +29,11 @@ def homepage(request):
         form = TimeInTimeOutForms(request.POST or None)
 
     # """ Time In List """
-
+    
     time_in_list = TimeInTimeOut.objects.all().order_by('-time_in')
 
+    for i in time_in_list:
+        print(i.time_in)
     context = {
         'form': form,
         'time_in_list' : time_in_list

@@ -17,6 +17,6 @@ class TimeInTimeOut(models.Model):
     time_out = models.TimeField(auto_now_add=False,blank=True, null=True)
 
 
-    def __str__(self):
-        return self.category + " | " + f"{self.time_in}" + " | " + f"{self.time_out}"
+    # def __str__(self):
+    #     return self.category + " | " + f"{self.time_in}" + " | " + f"{self.time_out}"
     
