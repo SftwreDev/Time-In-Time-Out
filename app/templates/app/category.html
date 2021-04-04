@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load widget_tweaks %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 {% block extrastylesheet %}
@@ -16,80 +16,32 @@
     </div>
 
 {% endfor %} 
-   <h3 style="color: white;">Time In Time Out System</h3>
 
-            <form method="post" id="tito_form">
-            {% csrf_token %}
-                <table class="table table-borderless">
-                    <thead  style="color: white;">
-                        <tr>
-                            <th>Category</th>
-                            <th></th>
-                            <th>Time</th>
-                            <th>Time In</th>
-                        </tr>
-                    </thead>
+    <h3 style="color: white;">Time In Time Out Category</h3>
+    <button type="button" class="btn btn-sm text-white mb-3" data-toggle="modal" data-target="#exampleModal" style="background-color: #1483fe;">
+        Add Category 
+    </button>
 
-                    <tbody>
-                        <tr>
-                        <th scope="col">
-                           {% render_field form.category class="form-control form-control-sm" %}
-                        </th>
-                        <th>
-                            <a href="{% url 'app:category' %}" class="text-primary">
-                                <i class="fas fa-plus-circle"></i>
-                            </a>
-                        </th>
-                        <th scope="col" >
-                            <div id="clock" onload="showTime()" style="color: white;">
-                                
-                            </div>
-                        </th>
-                        <th scope="col">
-                            <button class="btn btn-primary btn-sm"  >Time In</button>
-                        </th>
-                        </tr>
-                    </tbody>
-                    
-                </table>
-            </form>    
+            
     <div class="card p-3" style="color: white; background-color: #131217; box-shadow:  0 8px 16px 0 rgb(20,131,254)">
         <table class="table table-sm table-borderless text-center" id="tito_table"  style="color: white; background-color: #131217;">
             <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Date Created</th>
                     <th scope="col">Category</th>
-                    <th scope="col">Time In</th>
-                    <th scope="col">Time Out</th>
                     <th scope="col">Actions</th>
                 </tr>
             </thead>
             
             <tbody>
-            {% for list in time_in_list %}
+            {% for list in category %}
                 <tr>
                     <th scope="row">{{forloop.counter}}</th>
-                    <td>{{list.date_created}}</td>
                     <td>{{list.category}}</td>
-                    <td>{{list.time_in|default_if_none:""}}</td>
                     <td>
-                        {% if list.time_out == None %}
-                            <a href={% url "app:time_out" list.pk %} class="btn btn-danger btn-sm">Time Out</a>
-                        {% else %}
-                            {{list.time_out}}
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if list.time_out == None %}
-                            <button type="button" class="btn btn-danger btn-sm" disabled>
-                                <i class="far fa-trash-alt"></i>
-                            </button>
-                        {% else %}
-                            <a href={% url "app:delete" list.pk %} class="btn btn-danger btn-sm">
-                                <i class="far fa-trash-alt"></i>
-                            </a>
-                        {% endif %}
+                        <a href={% url "app:category_delete" list.pk %} class="btn btn-danger btn-sm">
+                            <i class="far fa-trash-alt"></i>
+                        </a>
                     </td>
                 </tr>
             {% endfor %}
@@ -99,6 +51,31 @@
     </div>
     
 
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Category</h5>
+            <a href="{% url 'app:category' %}" class="close">
+            <span aria-hidden="true">&times;</span>
+            </a>
+        </div>
+        <form method="POST">
+        {% csrf_token %}
+            <div class="modal-body">
+                {{form|crispy}}
+            </div>
+            <div class="modal-footer">
+                <a href="{% url 'app:category' %}" class="btn btn-secondary btn-sm">Cancel</a>
+                <button type="submit" class="btn btn-primary btn-sm">Save</button>
+            </div>
+        </form>
+    </div>
+  </div>
 </div>
 
 <script>

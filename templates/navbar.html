@@ -1,5 +1,13 @@
 <nav class="navbar shadow" style="height: 70px; background-color: #131217;">
-  <span class="navbar-brand mb-0 h1" style="color: #1483fe;">
-    TITO | Time In Time Out
+  <span class="navbar-brand mb-0 h1 mr-auto" style="color: #1483fe;">
+  <a href="{% url 'app:homepage' %}" class="navbar-brand">
+      TITO | Time In Time Out
+  </a>
   </span>
+
+  <span class="navbar-text">
+     <a href="{% url 'logout' %}" class="navbar-brand">
+      Log out
+    </a>
+    </span>
 </nav>

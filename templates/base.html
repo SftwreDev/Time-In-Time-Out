@@ -19,10 +19,14 @@
     <title>TITO App</title>
   </head>
   <body style="font-family: 'Montserrat', sans-serif; background-color: #191a1f;">
+  {% if user.is_authenticated %}
     {% include 'navbar.html' %}
-    {% block content %}
-    {% endblock %}
 
+    
+  {% endif %}
+
+      {% block content %}
+    {% endblock %}
     <!-- Optional JavaScript; choose one of the two! -->
 
     <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
