@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+{% block extrastylesheet %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css" rel="stylesheet"> 
+    <link href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css" rel="stylesheet"> 
+{% endblock extrastylesheet %}
+
+
+<div class="container mt-3">
+{% for message in messages %}
+      <div class="alert alert-success" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        {{message}}
+    </div>
+
+{% endfor %} 
+   <h3 style="color: white;">Time In Time Out System</h3>
+
+            <form method="post" id="tito_form">
+            {% csrf_token %}
+                <table class="table table-borderless">
+                    <thead  style="color: white;">
+                        <tr>
+                            <th>Category</th>
+                            <th></th>
+                            <th>Time</th>
+                            <th>Time In</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                        <th scope="col">
+                            <div class="form-group">
+                                <select class="form-control form-control-sm" id="category" name="category">
+                                    <option>Getaka Labs</option>
+                                    <option>Quadralogix</option>
+                                </select>
+                            </div>
+                        </th>
+                        <th></th>
+                        <th scope="col" >
+                            <div id="clock" onload="showTime()" style="color: white;">
+                                
+                            </div>
+                        </th>
+                        <th scope="col">
+                            <button class="btn btn-primary btn-sm"  >Time In</button>
+                        </th>
+                        </tr>
+                    </tbody>
+                    
+                </table>
+            </form>    
+    <div class="card p-3" style="color: white; background-color: #131217;">
+        <table class="table table-sm table-borderless text-center" id="tito_table"  style="color: white; background-color: #131217;">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Date Created</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Time In</th>
+                    <th scope="col">Time Out</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+            {% for list in time_in_list %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{list.date_created}}</td>
+                    <td>{{list.category}}</td>
+                    <td>{{list.time_in|default_if_none:""}}</td>
+                    <td>
+                        {% if list.time_out == None %}
+                            <a href={% url "app:time_out" list.pk %} class="btn btn-danger btn-sm">Time Out</a>
+                        {% else %}
+                            {{list.time_out}}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if list.time_out == None %}
+                            <button type="button" class="btn btn-danger btn-sm" disabled>
+                                <i class="far fa-trash-alt"></i>
+                            </button>
+                        {% else %}
+                            <a href={% url "app:delete" list.pk %} class="btn btn-danger btn-sm">
+                                <i class="far fa-trash-alt"></i>
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            
+        </table>
+    </div>
+    
+
+</div>
+
+<script>
+function showTime(){
+    var date = new Date();
+    var h = date.getHours(); // 0 - 23
+    var m = date.getMinutes(); // 0 - 59
+    var s = date.getSeconds(); // 0 - 59
+    var session = "AM";
+    
+    if(h == 0){
+        h = 12;
+    }
+    
+    if(h > 12){
+        h = h - 12;
+        session = "PM";
+    }
+    
+    h = (h < 10) ? "0" + h : h;
+    m = (m < 10) ? "0" + m : m;
+    s = (s < 10) ? "0" + s : s;
+    
+    var time = h + ":" + m + ":" + s + " " + session;
+    document.getElementById("clock").innerText = time;
+    document.getElementById("clock").textContent = time;
+    
+    setTimeout(showTime, 1000);
+    
+}
+
+showTime();
+
+$(document).on('submit','#tito_form',function(e){
+e.preventDefault();
+$.ajax({
+    type:'POST',
+    url:'{% url "app:homepage" %}',
+    data:
+    {
+        task:$("#category").val(),
+        csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+    },
+    success:function(){
+        startTimer()
+        alert('Saved');
+    }
+    })
+});
+
+</script>
+
+<script>
+window.setTimeout(function() {
+    $(".alert").fadeTo(500, 0).slideUp(500, function(){
+        $(this).remove(); 
+    });
+}, 2000);
+</script>
+{% endblock %}
+
+{% block tablescript %}
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#tito_table').DataTable(
+            {
+                "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                fixedHeader: true,
+                "searching": false
+            }
+        );
+        
+    } );
+</script>
+{% endblock tablescript %}
