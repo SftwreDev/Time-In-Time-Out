@@ -20,21 +20,45 @@
     </div>
 
 {% endfor %} 
-   <h3 style="color: white;">Time In Time Out System</h3>
-   
-    <div id="date" style="color: white;">
-        Date Today : {{date_today}}
-    </div>
+   <h3 style="color: white;">Schedule</h3>
+
     <div id="clock" onload="showTime()" style="color: white;"></div>
-
-    
     <br>
-    <a href="{% url 'app:schedule_page' %}" class="btn btn-primary btn-sm mb-3">
-        View Schedule
-    </a>  
+    <button type="button" class="btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#staticBackdrop">
+        Create Schedule
+    </button>  
+    <a href="{% url 'app:category' %}" class="btn btn-success btn-sm mb-3">
+        View Category
+    </a>
+    
+    <!-- Modal -->
+    <div class="modal fade" id="staticBackdrop" data-backdrop="static"
+     data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Create Schedule</h5>
+                <a href="{% url 'app:schedule_page' %}" class="close">
+                <span aria-hidden="true">&times;</span>
+                </a>
+            </div>
+            <form method="POST">
+            {% csrf_token %}
+                <div class="modal-body">
+                    {{form|crispy}}
+                </div>
+                <div class="modal-footer">
+                    <a href="{% url 'app:schedule_page' %}" class="btn btn-secondary btn-sm">Cancel</a>
+                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+    <!-- End Modal -->
 
-    <div class="card p-3 mb-5" style="color: white; background-color: #131217; box-shadow:  0 8px 16px 0 rgb(20,131,254)">
-        <table class="table table-sm table-borderless text-center"  style="color: white; background-color: #131217;">
+    <div class="card p-3" style="color: white; background-color: #131217; box-shadow:  0 8px 16px 0 rgb(20,131,254)">
+        <table class="table table-sm table-borderless text-center" id="tito_table"  style="color: white; background-color: #131217;">
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -45,9 +69,8 @@
                     <th scope="col">Break In</th>
                     <th scope="col">Time Out</th>
                     {% comment %} <th scope="col">Task</th> {% endcomment %}
-                    <th scope="col">Actions</th>
                     <th scope="col">Status</th>
-                    {% comment %} <th scope="col">Actions</th> {% endcomment %}
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
             
@@ -64,37 +87,39 @@
                     {% endif %}
                     <span class="badge badge-info">{{list.category}}</span>
                     </td>
+                    <td>{{list.time_in|default_if_none:""}}</td>
                     <td>
-                        {{list.time_in}}
-                    </td>
-                    <td>
+                    {% if list.break_out == None %}
+                        <a href={% url "app:break_out" list.pk %} >
+                            <span class="badge badge-warning">Break Out</span>
+                        </a>
+                    {% else %}
                         {{list.break_out}}
+                    {% endif %}
                     </td>
                     <td>
-                        {{list.break_in}}
+                    {% if list.break_in == None %}
+                            <a href={% url "app:break_in" list.pk %} >
+                                <span class="badge badge-primary">Break In</span>
+                            </a>
+                        {% else %}
+                            {{list.break_in}}
+                        {% endif %}
                     </td>
                     <td>
-                        {{list.time_out}}
+                        {% if list.time_out == None  %}
+                            <a href={% url "app:time_out" list.pk %} onclick="stop()">
+                                <span class="badge badge-danger">Time Out</span>
+                            </a>
+                        {% else %}
+                            {{list.time_out}}
+                        {% endif %}
                     </td>
                     {% comment %} <td>
                         <div style="font-size: 12px;">
                             {{list.task|linebreaks}}
                         </div>
                     </td> {% endcomment %}
-                    <td>
-                        <a href={% url "app:time_in" list.pk %} >
-                            <span class="badge badge-primary">Time In</span>
-                        </a>
-                        <a href={% url "app:break_out" list.pk %} >
-                            <span class="badge badge-warning">Break Out</span>
-                        </a>
-                        <a href={% url "app:break_in" list.pk %} >
-                            <span class="badge badge-success">Break In</span>
-                        </a>
-                        <a href={% url "app:time_out" list.pk %} onclick="stop()">
-                            <span class="badge badge-danger">Time Out</span>
-                        </a>
-                    </td>
                     <td>
                         <span class="badge badge-pill badge-primary"> </span>
                         <span class="badge badge-pill badge-warning"> </span>
@@ -106,8 +131,8 @@
                         <span class="badge badge-pill badge-warning"> </span>
                         <span class="badge badge-pill badge-primary"> </span>
                     </td>
-                    {% comment %} <td>
-                        {% if list.time_out != None or list.break_out != None or list.break_in != None %}
+                    <td>
+                        {% if list.time_out == None or list.break_out == None or list.break_in == None %}
                             <button type="button" class="btn btn-danger btn-sm" disabled>
                                 <i class="far fa-trash-alt"></i>
                             </button>
@@ -116,7 +141,8 @@
                                 <i class="far fa-trash-alt"></i>
                             </a>
                         {% endif %}
-                    </td> {% endcomment %}
+                        
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -124,6 +150,7 @@
         </table>
     </div>
     
+
 </div>
 
 <script>
